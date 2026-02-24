@@ -1,6 +1,7 @@
 package io.github.nissemanen.notsoSimpleClaims;
 
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 
@@ -10,15 +11,15 @@ public class ClaimManager {
 
     public UUID getOwnerOf(Chunk chunk) { return chunkToUuid.get(chunk); }
 
-    public Set<Chunk> getOwnedChunksOf(Player player) { return this.getOwnedChunksOf(player.getUniqueId()); }
+    public Set<Chunk> getOwnedChunksOf(@NonNull Player player) { return this.getOwnedChunksOf(player.getUniqueId()); }
     public Set<Chunk> getOwnedChunksOf(UUID player) { return uuidToChunkSet.get(player); }
 
     public boolean isChunkClaimed(Chunk chunk) { return chunkToUuid.containsKey(chunk); }
 
-    public boolean isChunkClaimedBy(Player player, Chunk chunk) { return this.isChunkClaimedBy(player.getUniqueId(), chunk); }
+    public boolean isChunkClaimedBy(@NonNull Player player, Chunk chunk) { return this.isChunkClaimedBy(player.getUniqueId(), chunk); }
     public boolean isChunkClaimedBy(UUID player, Chunk chunk) { return this.isChunkClaimed(chunk) && chunkToUuid.get(chunk).equals(player); }
 
-    public boolean claimChunk(Player player, Chunk chunk) { return this.claimChunk(player.getUniqueId(), chunk); }
+    public boolean claimChunk(@NonNull Player player, Chunk chunk) { return this.claimChunk(player.getUniqueId(), chunk); }
     public boolean claimChunk(UUID player, Chunk chunk) {
         boolean success = chunkToUuid.putIfAbsent(chunk, player) == null;
 
