@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +18,10 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     final void onRightClickBlock(PlayerInteractEvent e) {
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (e.getAction() != Action.RIGHT_CLICK_AIR) return;
 
-        Bukkit.getLogger().info("idk");
+        ItemStack currentItem = e.getPlayer().getInventory().getItemInMainHand();
+
+        e.getPlayer().sendMessage("current item hold is: "+currentItem.effectiveName());
     }
 }
