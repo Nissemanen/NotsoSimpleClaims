@@ -1,9 +1,14 @@
 package io.github.nissemanen.notsoSimpleClaims.items;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.ItemLore;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.checkerframework.common.value.qual.StaticallyExecutable;
+
+import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CapitalMarkerBlock {
@@ -12,6 +17,12 @@ public class CapitalMarkerBlock {
         ItemStack block = ItemStack.of(Material.LODESTONE);
 
         block.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+        block.setData(
+                DataComponentTypes.LORE,
+                ItemLore.lore(List.of(
+                        Component.text("does this work?")
+                                .color(NamedTextColor.AQUA))
+                ));
 
         return block;
     }

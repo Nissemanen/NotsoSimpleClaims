@@ -1,6 +1,6 @@
 io\github\nissemanen\notsoSimpleClaims\commands\DevCommands.class
+io\github\nissemanen\notsoSimpleClaims\items\CapitalMarkerBlock.class
 io\github\nissemanen\notsoSimpleClaims\NotsoSimpleClaims.class
-io\github\nissemanen\notsoSimpleClaims\items\CaptitalMarkerBlock.class
 io\github\nissemanen\notsoSimpleClaims\ClaimManager.class
 io\github\nissemanen\notsoSimpleClaims\listeners\PlayerListener.class
 io\github\nissemanen\notsoSimpleClaims\Chunk.class
