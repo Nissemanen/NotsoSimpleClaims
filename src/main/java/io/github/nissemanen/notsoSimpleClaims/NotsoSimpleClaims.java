@@ -1,16 +1,13 @@
 package io.github.nissemanen.notsoSimpleClaims;
 
-import com.zaxxer.hikari.HikariDataSource;
-import org.bukkit.Bukkit;
+import io.github.nissemanen.notsoSimpleClaims.listeners.PlayerListener;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 public final class NotsoSimpleClaims extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     }
 
     @Override
