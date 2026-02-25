@@ -1,28 +1,24 @@
 package io.github.nissemanen.notsoSimpleClaims.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.TileState;
-import org.bukkit.event.Event;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+@SuppressWarnings("UnstableApiUsage")
 public class PlayerListener implements Listener {
+    private final Map<Location, UUID> capitalBlocks = new HashMap<>();
+
     @EventHandler
     final void onRightClickBlock(PlayerInteractEvent e) {
-        Block block = e.getClickedBlock();
-        assert block != null;
-        BlockState blockState = block.getState();
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
-        if (!(blockState instanceof TileState tileState)) {
-            Bukkit.getLogger().info("clicked block is not a TileEntity");
-            e.getPlayer().sendMessage("clicked block is not a TileEntity");
-            return;
-        }
-
-        Bukkit.getLogger().info("\nclicked block: "+block+"\nblock PDC: "+tileState.getPersistentDataContainer());
-        e.getPlayer().sendMessage("\nclicked block: "+block+"\nblock PDC: "+tileState.getPersistentDataContainer());
+        Bukkit.getLogger().info("idk");
     }
 }
