@@ -18,9 +18,11 @@ public class PlayerListener implements Listener {
 
         if (!(blockState instanceof TileState tileState)) {
             Bukkit.getLogger().info("clicked block is not a TileEntity");
+            e.getPlayer().sendMessage("clicked block is not a TileEntity");
             return;
         }
 
         Bukkit.getLogger().info("\nclicked block: "+block+"\nblock PDC: "+tileState.getPersistentDataContainer());
+        e.getPlayer().sendMessage("\nclicked block: "+block+"\nblock PDC: "+tileState.getPersistentDataContainer());
     }
 }
