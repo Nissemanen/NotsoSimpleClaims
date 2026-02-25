@@ -1,0 +1,16 @@
+name: NotsoSimpleClaims
+version: '1.0-BETA'
+main: io.github.nissemanen.notsoSimpleClaims.NotsoSimpleClaims
+api-version: '1.21'
+authors: [ nissemanen ]
+description: im just testing crap
+website: github.com/Nissemanen
+
+default-permission: op
+permissions:
+  NotsoSimpleClaims.DevCommands:
+    default: op
+    description: Dev commands for NotsoSimpleClaims, such as claiming and abandoning chunks.
+
+libraries:
+  - com.zaxxer:HikariCP:7.0.2
