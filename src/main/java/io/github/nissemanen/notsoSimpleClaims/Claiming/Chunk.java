@@ -1,4 +1,4 @@
-package io.github.nissemanen.notsoSimpleClaims;
+package io.github.nissemanen.notsoSimpleClaims.Claiming;
 
 import org.bukkit.World;
 

@@ -1,17 +1,26 @@
 package io.github.nissemanen.notsoSimpleClaims;
 
+import com.zaxxer.hikari.HikariDataSource;
+import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import io.github.nissemanen.notsoSimpleClaims.commands.DevCommands;
-import io.github.nissemanen.notsoSimpleClaims.listeners.PlayerListener;
+import io.github.nissemanen.notsoSimpleClaims.Blocks.listeners.PlayerListenerCapitalBlock;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public final class NotsoSimpleClaims extends JavaPlugin {
+    ClaimManager claimManager;
 
     @Override
     public void onEnable() {
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        HikariDataSource ds = new HikariDataSource();
+                         ds.setJdbcUrl("jdbc:sqlite:" + new File(getDataFolder(), "data.db"));
 
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> new DevCommands().register(commands.registrar()));
+        claimManager = new ClaimManager(ds);
+        getServer().getPluginManager().registerEvents(new PlayerListenerCapitalBlock(this), this);
+
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> new DevCommands(this).register(commands.registrar()));
     }
 
     @Override

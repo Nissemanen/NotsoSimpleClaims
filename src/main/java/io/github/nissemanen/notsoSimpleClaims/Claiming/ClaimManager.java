@@ -1,8 +1,13 @@
-package io.github.nissemanen.notsoSimpleClaims;
+package io.github.nissemanen.notsoSimpleClaims.Claiming;
 
+import com.zaxxer.hikari.HikariDataSource;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NonNull;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 public class ClaimManager {
@@ -43,5 +48,28 @@ public class ClaimManager {
     }
 
     // Database things
+    private final HikariDataSource dataSource;
 
+    public ClaimManager(HikariDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public void readyDataBase() {
+
+
+        try (final Connection connection = this.dataSource.getConnection();
+             final PreparedStatement chunkToUuid_Statement = connection.prepareStatement("""
+CREATE TABLE IF NOT EXISTS claims (
+uuid TEXT NOT NULL,
+world TEXT NOT NULL,
+x INTEGER NOT NULL,
+z INTEGER NOT NULL,
+PRIMARY KEY (world, x, z));
+""")
+             ) {
+            chunkToUuid_Statement.execute();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe(e.getMessage());
+        }
+    }
 }
