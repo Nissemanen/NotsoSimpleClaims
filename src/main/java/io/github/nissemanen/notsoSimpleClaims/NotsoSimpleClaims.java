@@ -11,20 +11,32 @@ import java.io.File;
 
 public final class NotsoSimpleClaims extends JavaPlugin {
     ClaimManager claimManager;
+    HikariDataSource dataSource;
+
+    @Override
+    public void onLoad() {
+        if (getDataFolder().mkdirs()) getLogger().info("Data folder has been created");
+
+        dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl("jdbc:sqlite:" + new File(getDataFolder(), "claims.db"));
+
+        claimManager = new ClaimManager(dataSource);
+
+
+        claimManager.readyDataBase();
+    }
 
     @Override
     public void onEnable() {
-        HikariDataSource ds = new HikariDataSource();
-                         ds.setJdbcUrl("jdbc:sqlite:" + new File(getDataFolder(), "data.db"));
-
-        claimManager = new ClaimManager(ds);
         getServer().getPluginManager().registerEvents(new PlayerListenerCapitalBlock(this), this);
 
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> new DevCommands(this).register(commands.registrar()));
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands ->
+                new DevCommands(this).register(commands.registrar())
+        );
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        dataSource.close();
     }
 }
