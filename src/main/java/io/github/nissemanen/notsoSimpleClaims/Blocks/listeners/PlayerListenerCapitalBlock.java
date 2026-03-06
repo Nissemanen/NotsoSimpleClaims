@@ -1,8 +1,10 @@
 package io.github.nissemanen.notsoSimpleClaims.Blocks.listeners;
 
-import org.bukkit.Location;
+import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -20,9 +22,11 @@ import java.util.UUID;
 public class PlayerListenerCapitalBlock implements Listener {
     private final Map<Block, UUID> capitalBlocks = new HashMap<>();
     private final Plugin plugin;
+    private final ClaimManager claimManager;
 
-    public PlayerListenerCapitalBlock(Plugin plugin) {
+    public PlayerListenerCapitalBlock(Plugin plugin, ClaimManager claimManager) {
         this.plugin = plugin;
+        this.claimManager = claimManager;
     }
 
     @EventHandler
@@ -36,13 +40,24 @@ public class PlayerListenerCapitalBlock implements Listener {
 
     @EventHandler
     final void onBlockPlace(BlockPlaceEvent e) {
+        Block block = e.getBlock();
+        Player player = e.getPlayer();
+
+        if (claimManager.isChunkClaimed(block.getChunk())) {
+            if (!claimManager.isChunkClaimedBy(player, block.getChunk())) {
+                e.getPlayer().sendActionBar(Component.text("fuck you"));
+                e.setCancelled(true);
+                return;
+            }
+        }
+
         plugin.getLogger().info("placed");
 
         ItemStack item = e.getItemInHand();
-        PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
+        PersistentDataContainer persistentDataContainer = item.getItemMeta().getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(plugin, "is_capital_block");
 
-        if (!(container.has(key) && Boolean.TRUE.equals(container.get(key, PersistentDataType.BOOLEAN)))) return;
+        if (!(persistentDataContainer.has(key) && Boolean.TRUE.equals(persistentDataContainer.get(key, PersistentDataType.BOOLEAN)))) return;
 
         capitalBlocks.put(e.getBlockPlaced(), e.getPlayer().getUniqueId());
 
