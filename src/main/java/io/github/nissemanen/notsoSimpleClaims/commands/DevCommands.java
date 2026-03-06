@@ -1,22 +1,36 @@
 package io.github.nissemanen.notsoSimpleClaims.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.github.nissemanen.notsoSimpleClaims.Blocks.items.CapitalMarkerItem;
+import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class DevCommands {
     private final Plugin plugin;
+    private final ClaimManager claimManager;
 
-    public DevCommands(Plugin plugin) {
+    public DevCommands(Plugin plugin, ClaimManager claimManager) {
         this.plugin = plugin;
+        this.claimManager = claimManager;
     }
 
     public void register(Commands registrar) {
         registrar.register(
                 Commands.literal("DevClaims").requires(cmd -> cmd.getSender().hasPermission("NotsoSimpleClaims.DevCommands"))
-                        .then(Commands.literal("claim"))
+                        .then(Commands.literal("claim")
+                                .then(Commands.argument("name", StringArgumentType.greedyString()).requires(cxt -> (cxt.getSender() instanceof Player)).executes(cmd -> {
+                                    Player player = Bukkit.getPlayer(cmd.getArgument("name", String.class));
+
+                                    if (player == null) return 0;
+
+                                    claimManager.claimChunk(player, ((Player) cmd.getSource().getSender()).getChunk());
+
+                                    return Command.SINGLE_SUCCESS;
+                                })))
                         .then(Commands.literal("abandon"))
                         .then(Commands.literal("getCapitalClaim")
                                 .executes(cmd -> {
@@ -31,6 +45,11 @@ public class DevCommands {
 
                                     return Command.SINGLE_SUCCESS;
                                 }))
+                        .then(Commands.literal("print_to_console").executes(cmd -> {
+                            plugin.getLogger().info(claimManager.getClaimToUuid().toString());
+
+                            return Command.SINGLE_SUCCESS;
+                        }))
                         .build()
         );
     }
