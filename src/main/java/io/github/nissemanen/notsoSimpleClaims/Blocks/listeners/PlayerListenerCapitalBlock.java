@@ -2,12 +2,14 @@ package io.github.nissemanen.notsoSimpleClaims.Blocks.listeners;
 
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +31,10 @@ public class PlayerListenerCapitalBlock implements Listener {
         this.claimManager = claimManager;
     }
 
+    public Map<Block, UUID> getCapitalBlocks() {
+        return capitalBlocks;
+    }
+
     @EventHandler
     final void onRightClickBlock(PlayerInteractEvent e) {
         if (e.getAction() != Action.RIGHT_CLICK_AIR) return;
@@ -44,8 +50,10 @@ public class PlayerListenerCapitalBlock implements Listener {
         Player player = e.getPlayer();
 
         if (claimManager.isChunkClaimed(block.getChunk())) {
+            plugin.getLogger().info("chunk is claimed!");
             if (!claimManager.isChunkClaimedBy(player, block.getChunk())) {
-                e.getPlayer().sendActionBar(Component.text("fuck you"));
+                plugin.getLogger().info("Event cancled!");
+                e.getPlayer().sendActionBar(Component.text("fuck you").color(NamedTextColor.RED));
                 e.setCancelled(true);
                 return;
             }
@@ -62,5 +70,16 @@ public class PlayerListenerCapitalBlock implements Listener {
         capitalBlocks.put(e.getBlockPlaced(), e.getPlayer().getUniqueId());
 
         e.getPlayer().sendMessage("item:\n"+item);
+    }
+
+    @EventHandler
+    final void onBlockBreak(BlockBreakEvent e) {
+        Block block = e.getBlock();
+        Player player = e.getPlayer();
+
+        if (claimManager.isChunkClaimed(block.getChunk()) && !claimManager.isChunkClaimedBy(player, block.getChunk())) {
+                e.getPlayer().sendActionBar(Component.text("fuck you").color(NamedTextColor.BLUE));
+                e.setCancelled(true);
+        }
     }
 }

@@ -28,10 +28,11 @@ public final class NotsoSimpleClaims extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getServer().getPluginManager().registerEvents(new PlayerListenerCapitalBlock(this, claimManager), this);
+        PlayerListenerCapitalBlock playerListenerCapitalBlock = new PlayerListenerCapitalBlock(this, claimManager);
+        getServer().getPluginManager().registerEvents(playerListenerCapitalBlock, this);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands ->
-                new DevCommands(this, claimManager).register(commands.registrar())
+                new DevCommands(this, claimManager, playerListenerCapitalBlock).register(commands.registrar())
         );
     }
 

@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NonNull;
 
 import java.sql.Connection;
@@ -31,7 +32,7 @@ public class ClaimManager {
     public boolean isChunkClaimedBy(@NonNull Player player, Chunk chunk) { return this.isChunkClaimedBy(player.getUniqueId(), new Claim(chunk.getWorld(), chunk.getX(), chunk.getZ())); }
     public boolean isChunkClaimedBy(@NonNull Player player, Claim claim) { return this.isChunkClaimedBy(player.getUniqueId(), claim); }
     public boolean isChunkClaimedBy(UUID player, Chunk chunk) { return this.isChunkClaimedBy(player, new Claim(chunk.getWorld(), chunk.getX(), chunk.getZ())); }
-    public boolean isChunkClaimedBy(UUID player, Claim claim) { return claimToUuid.get(claim).equals(player); }
+    public boolean isChunkClaimedBy(UUID player, Claim claim) { return claimToUuid.get(claim) == player; }
 
     public boolean claimChunk(@NonNull Player player, Chunk chunk) { return this.claimChunk(player.getUniqueId(), new Claim(chunk.getWorld(), chunk.getX(), chunk.getZ())); }
     public boolean claimChunk(@NonNull Player player, Claim claim) { return this.claimChunk(player.getUniqueId(), claim); }
@@ -75,6 +76,18 @@ public class ClaimManager {
                     .computeIfAbsent(entry.getValue(), s -> new HashSet<>())
                     .add(entry.getKey());
         }
+    }
+
+    public void printToConsole(Plugin plugin) {
+        StringBuilder sb = new StringBuilder("\n--- things ---\n");
+
+        for (Map.Entry<Claim, UUID> entry : claimToUuid.entrySet()) {
+            String name = Bukkit.getOfflinePlayer(entry.getValue()).getName();
+            String displayName = (name != null) ? name : entry.getValue().toString();
+            sb.append("<").append(entry.getKey()).append(" : ").append(displayName).append(">\n");
+        }
+
+        plugin.getLogger().info(sb.toString());
     }
 
     // Database things
