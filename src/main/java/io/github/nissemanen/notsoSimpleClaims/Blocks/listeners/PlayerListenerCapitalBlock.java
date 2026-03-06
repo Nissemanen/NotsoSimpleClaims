@@ -52,7 +52,7 @@ public class PlayerListenerCapitalBlock implements Listener {
         if (claimManager.isChunkClaimed(block.getChunk())) {
             plugin.getLogger().info("chunk is claimed!");
             if (!claimManager.isChunkClaimedBy(player, block.getChunk())) {
-                plugin.getLogger().info("Event cancled!");
+                plugin.getLogger().info("Event canceled!");
                 e.getPlayer().sendActionBar(Component.text("fuck you").color(NamedTextColor.RED));
                 e.setCancelled(true);
                 return;
