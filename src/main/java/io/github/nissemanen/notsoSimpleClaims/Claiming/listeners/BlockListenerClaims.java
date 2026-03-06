@@ -29,6 +29,7 @@ public class BlockListenerClaims implements Listener {
     // BeaconEffectEvent *
 
     // TNTPrimeEvent
+    @EventHandler
     final void tntPrimeEvent(TNTPrimeEvent e) {
         Entity primingEntity = e.getPrimingEntity();
 
@@ -56,6 +57,7 @@ public class BlockListenerClaims implements Listener {
     }
 
     // BlockCanBuildEvent (+BlockPlaceEvent)
+    @EventHandler
     final void blockCanBuildEvent(BlockCanBuildEvent e) {
         Player player = e.getPlayer();
         Chunk chunk = e.getBlock().getChunk();
