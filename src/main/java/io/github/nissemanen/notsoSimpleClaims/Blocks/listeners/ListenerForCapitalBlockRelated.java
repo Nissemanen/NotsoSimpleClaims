@@ -1,15 +1,15 @@
 package io.github.nissemanen.notsoSimpleClaims.Blocks.listeners;
 
+import io.github.nissemanen.notsoSimpleClaims.Blocks.items.CapitalMarkerItem;
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class PlayerListenerCapitalBlock implements Listener {
+public class ListenerForCapitalBlockRelated implements Listener {
     private final Map<Block, UUID> capitalBlocks = new HashMap<>();
     private final Plugin plugin;
     private final ClaimManager claimManager;
 
-    public PlayerListenerCapitalBlock(Plugin plugin, ClaimManager claimManager) {
+    public ListenerForCapitalBlockRelated(Plugin plugin, ClaimManager claimManager) {
         this.plugin = plugin;
         this.claimManager = claimManager;
     }
@@ -36,7 +36,7 @@ public class PlayerListenerCapitalBlock implements Listener {
     }
 
     @EventHandler
-    final void onRightClickBlock(PlayerInteractEvent e) {
+    final void onRightClick(PlayerInteractEvent e) {
         if (e.getAction() != Action.RIGHT_CLICK_AIR) return;
 
         ItemStack currentItem = e.getPlayer().getInventory().getItemInMainHand();
@@ -46,40 +46,45 @@ public class PlayerListenerCapitalBlock implements Listener {
 
     @EventHandler
     final void onBlockPlace(BlockPlaceEvent e) {
-        Block block = e.getBlock();
-        Player player = e.getPlayer();
-
-        if (claimManager.isChunkClaimed(block.getChunk())) {
-            plugin.getLogger().info("chunk is claimed!");
-            if (!claimManager.isChunkClaimedBy(player, block.getChunk())) {
-                plugin.getLogger().info("Event canceled!");
-                e.getPlayer().sendActionBar(Component.text("fuck you").color(NamedTextColor.RED));
-                e.setCancelled(true);
-                return;
-            }
-        }
-
-        plugin.getLogger().info("placed");
-
         ItemStack item = e.getItemInHand();
         PersistentDataContainer persistentDataContainer = item.getItemMeta().getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(plugin, "is_capital_block");
 
         if (!(persistentDataContainer.has(key) && Boolean.TRUE.equals(persistentDataContainer.get(key, PersistentDataType.BOOLEAN)))) return;
 
-        capitalBlocks.put(e.getBlockPlaced(), e.getPlayer().getUniqueId());
+        capitalBlocks.put(e.getBlock(), e.getPlayer().getUniqueId());
+
+        claimManager.claimChunk(e.getPlayer(), e.getBlock().getChunk());
 
         e.getPlayer().sendMessage("item:\n"+item);
     }
 
     @EventHandler
-    final void onBlockBreak(BlockBreakEvent e) {
-        Block block = e.getBlock();
-        Player player = e.getPlayer();
+    final void onBlockDropItem(BlockDropItemEvent e) {
+        /*
+        anticipated setting:
+         - dropCapitalBlockOnBreak: bool
+         - capitalBlockAutoPickupOnDrop: bool
+         */
+        boolean capitalBlockAutoPickupOnDrop = false; // todo - actually make this use the config settings
 
-        if (claimManager.isChunkClaimed(block.getChunk()) && !claimManager.isChunkClaimedBy(player, block.getChunk())) {
-                e.getPlayer().sendActionBar(Component.text("fuck you").color(NamedTextColor.BLUE));
-                e.setCancelled(true);
+        Block block = e.getBlock();
+
+        if (!capitalBlocks.containsKey(block)) return;
+
+        if (capitalBlockAutoPickupOnDrop) {
+            Item tempItem = e.getItems().getFirst();
+
+            tempItem.setItemStack(new CapitalMarkerItem(plugin).get());
+
+            e.getItems().set(0, tempItem);
+        } else {
+            e.setCancelled(true);
+
+            e.getPlayer().getInventory().addItem(new CapitalMarkerItem(plugin).get());
         }
+
+        claimManager.abandonChunk(e.getPlayer(), block.getChunk());
+        capitalBlocks.remove(block);
     }
 }

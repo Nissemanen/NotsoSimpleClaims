@@ -1,8 +1,10 @@
 package io.github.nissemanen.notsoSimpleClaims.Claiming.listeners;
 
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
+import io.papermc.paper.event.entity.EntityCompostItemEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -22,8 +24,10 @@ public class BlockListenerClaims implements Listener {
     }
 
     private <T extends Event & Cancellable> void handleSimpleCancel(Chunk chunk, Player player, T e) {
-        if (isPlayerNotAllowedToBuild(player, chunk))
+        if (isPlayerNotAllowedToBuild(player, chunk)) {
             e.setCancelled(true);
+            player.sendActionBar(Component.text("fuck you").color(NamedTextColor.BLUE));
+        }
     }
 
     // BeaconEffectEvent *
@@ -31,9 +35,7 @@ public class BlockListenerClaims implements Listener {
     // TNTPrimeEvent
     @EventHandler
     final void tntPrimeEvent(TNTPrimeEvent e) {
-        Entity primingEntity = e.getPrimingEntity();
-
-        if (!(primingEntity instanceof Player player))
+        if (!(e.getPrimingEntity() instanceof Player player))
             return;
 
         Chunk chunk = e.getBlock().getChunk();
@@ -46,6 +48,16 @@ public class BlockListenerClaims implements Listener {
     // VaultChangeStateEvent *
 
     // EntityCompostItemEvent
+    @EventHandler
+    final void entityCompostItemEvent(EntityCompostItemEvent e) {
+        if (!(e.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        Chunk chunk = e.getBlock().getChunk();
+
+        handleSimpleCancel(chunk, player, e);
+    }
 
     // BlockBreakEvent
     @EventHandler
@@ -67,6 +79,13 @@ public class BlockListenerClaims implements Listener {
     }
 
     // BlockFertilizeEvent
+    @EventHandler
+    final void blockFertilizeEvent(BlockFertilizeEvent e) {
+        Player player = e.getPlayer();
+        Chunk chunk = e.getBlock().getChunk();
+
+        handleSimpleCancel(chunk, player, e);
+    }
 
     // BlockIgniteEvent
     @EventHandler

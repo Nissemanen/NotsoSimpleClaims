@@ -3,15 +3,15 @@ package io.github.nissemanen.notsoSimpleClaims.Claiming.listeners;
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import io.papermc.paper.event.block.PlayerShearBlockEvent;
 import io.papermc.paper.event.player.*;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerShearEntityEvent;
-import org.bukkit.event.player.PlayerTakeLecternBookEvent;
+import org.bukkit.event.player.*;
 
 public class PlayerListenerClaims implements Listener {
     private final ClaimManager claimManager;
@@ -25,11 +25,13 @@ public class PlayerListenerClaims implements Listener {
     }
 
     private <T extends Event & Cancellable> void handleSimpleCancel(Chunk chunk, Player player, T e) {
-        if (isPlayerNotAllowedToBuild(player, chunk))
+        if (isPlayerNotAllowedToBuild(player, chunk)) {
             e.setCancelled(true);
+            player.sendActionBar(Component.text("fuck you").color(NamedTextColor.RED));
+        }
     }
 
-    // PlayerChangeBeaconEvent
+    // PlayerChangeBeaconEvent *
 
     // PlayerFlowerpotManipulateEvent
     @EventHandler
@@ -81,6 +83,8 @@ public class PlayerListenerClaims implements Listener {
     final void playerOpenSignEvent(PlayerNameEntityEvent e) {
         Player player = e.getPlayer();
         Chunk chunk = e.getEntity().getChunk();
+
+        handleSimpleCancel(chunk, player, e);
     }
 
     // PlayerTradeEvent *
@@ -88,10 +92,24 @@ public class PlayerListenerClaims implements Listener {
     // PrePlayerAttackEntityEvent *
 
     // PlayerArmorStandManipulateEvent
+    @EventHandler
+    final void playerArmorStandManipulateEvent(PlayerArmorStandManipulateEvent e) {
+        Player player = e.getPlayer();
+        Chunk chunk = e.getRightClicked().getChunk();
+
+        handleSimpleCancel(chunk, player, e);
+    }
 
     // PlayerBucketEmptyEvent ?
 
     // PlayerBucketEntityEvent
+    @EventHandler
+    final void playerBucketEntityEvent(PlayerBucketEntityEvent e) {
+        Player player = e.getPlayer();
+        Chunk chunk = e.getPlayer().getChunk();
+
+        handleSimpleCancel(chunk, player, e);
+    }
 
     // PlayerBucketEvent ?
 
@@ -117,6 +135,13 @@ public class PlayerListenerClaims implements Listener {
     }
 
     // PlayerPortalEvent
+    @EventHandler
+    final void playerPortalEvent(PlayerPortalEvent e) {
+        Player player = e.getPlayer();
+        Chunk chunk = e.getTo().getChunk();
+
+        handleSimpleCancel(chunk, player, e);
+    }
 
     // PlayerShearEntityEvent
     @EventHandler

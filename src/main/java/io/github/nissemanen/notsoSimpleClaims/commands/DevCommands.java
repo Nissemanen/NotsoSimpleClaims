@@ -3,7 +3,7 @@ package io.github.nissemanen.notsoSimpleClaims.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.github.nissemanen.notsoSimpleClaims.Blocks.items.CapitalMarkerItem;
-import io.github.nissemanen.notsoSimpleClaims.Blocks.listeners.PlayerListenerCapitalBlock;
+import io.github.nissemanen.notsoSimpleClaims.Blocks.listeners.ListenerForCapitalBlockRelated;
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
@@ -13,9 +13,9 @@ import org.bukkit.plugin.Plugin;
 public class DevCommands {
     private final Plugin plugin;
     private final ClaimManager claimManager;
-    private final PlayerListenerCapitalBlock playerListenerCapitalBlock;
+    private final ListenerForCapitalBlockRelated playerListenerCapitalBlock;
 
-    public DevCommands(Plugin plugin, ClaimManager claimManager, PlayerListenerCapitalBlock playerListenerCapitalBlock) {
+    public DevCommands(Plugin plugin, ClaimManager claimManager, ListenerForCapitalBlockRelated playerListenerCapitalBlock) {
         this.plugin = plugin;
         this.claimManager = claimManager;
         this.playerListenerCapitalBlock = playerListenerCapitalBlock;
