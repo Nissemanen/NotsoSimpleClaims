@@ -1,6 +1,9 @@
 C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Blocks\items\CapitalMarkerItem.java
-C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Blocks\listeners\PlayerListenerCapitalBlock.java
+C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Blocks\listeners\ListenerForCapitalBlockRelated.java
 C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Claiming\Claim.java
 C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Claiming\ClaimManager.java
+C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Claiming\listeners\BlockListenerClaims.java
+C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Claiming\listeners\EntityListenerClaims.java
+C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\Claiming\listeners\PlayerListenerClaims.java
 C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\commands\DevCommands.java
 C:\Users\nisse\IdeaProjects\NotsoSimpleClaims\src\main\java\io\github\nissemanen\notsoSimpleClaims\NotsoSimpleClaims.java

@@ -2,6 +2,7 @@ package io.github.nissemanen.notsoSimpleClaims.Claiming.listeners;
 
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
+import io.papermc.paper.event.block.VaultChangeStateEvent;
 import io.papermc.paper.event.entity.EntityCompostItemEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -13,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
 
 public class BlockListenerClaims implements Listener {
     private final ClaimManager claimManager;
@@ -23,88 +25,99 @@ public class BlockListenerClaims implements Listener {
         this.plugin = plugin;
     }
 
-    private boolean isPlayerNotAllowedToBuild(Player player, Chunk chunk) {
+    private boolean playerHasNoPerms(Player player, Chunk chunk) {
         return claimManager.isChunkClaimed(chunk) && !claimManager.isChunkClaimedBy(player, chunk);
     }
 
     private <T extends Event & Cancellable> void handleSimpleCancel(Chunk chunk, Player player, T e) {
-        if (isPlayerNotAllowedToBuild(player, chunk)) {
+        if (playerHasNoPerms(player, chunk)) {
             e.setCancelled(true);
             player.sendActionBar(Component.text("fuck you").color(NamedTextColor.BLUE));
         }
     }
 
-    // BeaconEffectEvent *
     @EventHandler
     final void beaconEffectEvent(BeaconEffectEvent e) {
-        /*
-        settings:
+        /* Configurations
         claims:
           defaultClaimSettings:
             beaconEffect: bool
-            beaconEffectMultiplier: ufloat < 1.0
+            beaconEffectMultiplier: uDouble < 1.0
          */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.beaconEffect")) return;
 
-        boolean beaconEffect = plugin.getConfig().getBoolean("claims.defaultClaimSettings.beaconEffect");
+        Player player = e.getPlayer();
+        Chunk chunk = e.getBlock().getChunk();
 
+        handleSimpleCancel(chunk, player, e);
 
+        if (e.isCancelled()) return;
 
-        if (!())
+        e.setEffect(
+                e.getEffect().withAmplifier(
+                        (int) Math.round(
+                                e.getEffect().getAmplifier() * Math.max(Math.abs(plugin.getConfig().getDouble("claims.defaultSettings.beaconEffectMultiplier")), 1.0)
+                        )
+                )
+        );
     }
 
-    // TNTPrimeEvent
     @EventHandler
     final void tntPrimeEvent(TNTPrimeEvent e) {
-        if (!(e.getPrimingEntity() instanceof Player player))
-            return;
+        /*
+        claims:
+          defaultClaimSettings:
+            tntPriming: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.tntPriming") || !(e.getPrimingEntity() instanceof Player player)) return;
 
         Chunk chunk = e.getBlock().getChunk();
 
         handleSimpleCancel(chunk, player, e);
     }
 
-    // BlockBreakBlockEvent *
-
-    // VaultChangeStateEvent *
-
-    // EntityCompostItemEvent
     @EventHandler
-    final void entityCompostItemEvent(EntityCompostItemEvent e) {
-        if (!(e.getEntity() instanceof Player player)) {
-            return;
-        }
+    final void vaultChangeStateEvent(VaultChangeStateEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            changeVaultState: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.changeVaultState")) return;
 
-        Chunk chunk = e.getBlock().getChunk();
-
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
-    // BlockBreakEvent
     @EventHandler
     final void blockBreakEvent(BlockBreakEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getBlock().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            breakBlocks: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.breakBlocks")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
-    // BlockCanBuildEvent (+BlockPlaceEvent)
     @EventHandler
     final void blockCanBuildEvent(BlockCanBuildEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getBlock().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            buildBlocks: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.buildBlocks")) return;
 
-        if (isPlayerNotAllowedToBuild(player, chunk))
+        if (playerHasNoPerms(e.getPlayer(), e.getBlock().getChunk()))
             e.setBuildable(false);
     }
 
-    // BlockFertilizeEvent
     @EventHandler
     final void blockFertilizeEvent(BlockFertilizeEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getBlock().getChunk();
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.fertilizeBlocks")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
     // BlockIgniteEvent

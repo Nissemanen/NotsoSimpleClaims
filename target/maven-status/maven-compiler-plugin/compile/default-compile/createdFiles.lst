@@ -1,6 +1,9 @@
 io\github\nissemanen\notsoSimpleClaims\commands\DevCommands.class
 io\github\nissemanen\notsoSimpleClaims\NotsoSimpleClaims.class
 io\github\nissemanen\notsoSimpleClaims\Claiming\ClaimManager.class
+io\github\nissemanen\notsoSimpleClaims\Claiming\listeners\BlockListenerClaims.class
 io\github\nissemanen\notsoSimpleClaims\Claiming\Claim.class
+io\github\nissemanen\notsoSimpleClaims\Claiming\listeners\EntityListenerClaims.class
 io\github\nissemanen\notsoSimpleClaims\Blocks\items\CapitalMarkerItem.class
-io\github\nissemanen\notsoSimpleClaims\Blocks\listeners\PlayerListenerCapitalBlock.class
+io\github\nissemanen\notsoSimpleClaims\Claiming\listeners\PlayerListenerClaims.class
+io\github\nissemanen\notsoSimpleClaims\Blocks\listeners\ListenerForCapitalBlockRelated.class

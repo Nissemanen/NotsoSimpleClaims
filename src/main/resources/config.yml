@@ -2,10 +2,17 @@
 claims:
   settingPriorities: # What priority does a player need to change specified settings, valid are [no-op, op, none]
     beaconEffect: no-op
-  Default Claim Settings:
-    beaconEffect: true # should non group members get the beacon effect
-    beaconEffectMultiplier: 1.0
 
-# Capital Block Settings
-dropCapitalBlockOnBreak: true
-capitalBlockAutoPickupOnDrop: false
+  defaultClaimSettings:
+    # The standard for all settings (except ones that state otherwise)
+    # is that a value of true means non group members are allowed to do that thing,
+    # and false means they are not allowed
+
+    beaconEffect: true # if non group members should get the beacon effect of a beacon in claims
+    #beaconEffectMultiplier: 1.0 # This doesn't work rn, I added it incase I found a way to make this work, but it doesn't :(
+    tntPriming: false
+    changeVaultState: true # with the new trails thing, the lil block that takes keys won't change how it looks
+
+capitalBlockSettings:
+  dropCapitalBlockOnBreak: true
+  capitalBlockAutoPickupOnDrop: false

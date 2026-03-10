@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -28,47 +29,52 @@ public class ListenerForCapitalBlockRelated implements Listener {
         this.claimManager = claimManager;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     final void onBlockPlace(BlockPlaceEvent e) {
-        ItemStack item = e.getItemInHand();
-        PersistentDataContainer persistentDataContainer = item.getItemMeta().getPersistentDataContainer();
+        if (e.isCancelled()) return;
+
+        PersistentDataContainer persistentDataContainer = e.getItemInHand().getItemMeta().getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(plugin, "is_capital_block");
 
         if (!(persistentDataContainer.has(key) && Boolean.TRUE.equals(persistentDataContainer.get(key, PersistentDataType.BOOLEAN)))) return;
 
         capitalBlocks.put(e.getBlock(), e.getPlayer().getUniqueId());
-
         claimManager.claimChunk(e.getPlayer(), e.getBlock().getChunk());
-
-        e.getPlayer().sendMessage("item:\n"+item);
     }
 
     @EventHandler
     final void onBlockDropItem(BlockDropItemEvent e) {
         /*
-        setting:
-         - dropCapitalBlockOnBreak: bool
-         - capitalBlockAutoPickupOnDrop: bool
+        capitalBlockSettings:
+            dropCapitalBlockOnBreak: bool
+            capitalBlockAutoPickupOnDrop: bool
          */
-        boolean capitalBlockAutoPickupOnDrop = plugin.getConfig().getBoolean("capitalBlockAutoPickupOnDrop"); // todo - actually make this use the config settings
 
         Block block = e.getBlock();
 
         if (!capitalBlocks.containsKey(block)) return;
 
-        if (capitalBlockAutoPickupOnDrop) {
-            Item tempItem = e.getItems().getFirst();
-
-            tempItem.setItemStack(new CapitalMarkerItem(plugin).get());
-
-            e.getItems().set(0, tempItem);
-        } else {
+        if (!plugin.getConfig().getBoolean("capitalBlockSettings.dropCapitalBlockOnBreak")) {
             e.setCancelled(true);
-
-            e.getPlayer().getInventory().addItem(new CapitalMarkerItem(plugin).get());
         }
+
+        boolean capitalBlockAutoPickupOnDrop = plugin.getConfig().getBoolean("capitalBlockSettings.capitalBlockAutoPickupOnDrop");
 
         claimManager.abandonChunk(e.getPlayer(), block.getChunk());
         capitalBlocks.remove(block);
+
+        if (!capitalBlockAutoPickupOnDrop) {
+            e.setCancelled(true);
+
+            e.getPlayer().getInventory().addItem(new CapitalMarkerItem(plugin).get());
+
+            return;
+        }
+
+        Item tempItem = e.getItems().getFirst();
+
+        tempItem.setItemStack(new CapitalMarkerItem(plugin).get());
+
+        e.getItems().set(0, tempItem);
     }
 }
