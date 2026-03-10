@@ -30,6 +30,9 @@ public final class NotsoSimpleClaims extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveResource("config.yml", false);
+        saveDefaultConfig();
+
         ListenerForCapitalBlockRelated playerListenerCapitalBlock = new ListenerForCapitalBlockRelated(this, claimManager);
 
         getServer().getPluginManager().registerEvents(playerListenerCapitalBlock, this);

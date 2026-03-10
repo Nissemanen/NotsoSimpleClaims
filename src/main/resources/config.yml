@@ -1,0 +1,11 @@
+
+claims:
+  settingPriorities: # What priority does a player need to change specified settings, valid are [no-op, op, none]
+    beaconEffect: no-op
+  Default Claim Settings:
+    beaconEffect: true # should non group members get the beacon effect
+    beaconEffectMultiplier: 1.0
+
+# Capital Block Settings
+dropCapitalBlockOnBreak: true
+capitalBlockAutoPickupOnDrop: false

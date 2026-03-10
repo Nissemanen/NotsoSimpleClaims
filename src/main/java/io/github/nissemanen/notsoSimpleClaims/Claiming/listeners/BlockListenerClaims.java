@@ -1,5 +1,6 @@
 package io.github.nissemanen.notsoSimpleClaims.Claiming.listeners;
 
+import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import io.papermc.paper.event.entity.EntityCompostItemEvent;
 import net.kyori.adventure.text.Component;
@@ -11,12 +12,15 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockListenerClaims implements Listener {
     private final ClaimManager claimManager;
+    private final JavaPlugin plugin;
 
-    public BlockListenerClaims(ClaimManager claimManager) {
+    public BlockListenerClaims(ClaimManager claimManager, JavaPlugin plugin) {
         this.claimManager = claimManager;
+        this.plugin = plugin;
     }
 
     private boolean isPlayerNotAllowedToBuild(Player player, Chunk chunk) {
@@ -31,6 +35,22 @@ public class BlockListenerClaims implements Listener {
     }
 
     // BeaconEffectEvent *
+    @EventHandler
+    final void beaconEffectEvent(BeaconEffectEvent e) {
+        /*
+        settings:
+        claims:
+          defaultClaimSettings:
+            beaconEffect: bool
+            beaconEffectMultiplier: ufloat < 1.0
+         */
+
+        boolean beaconEffect = plugin.getConfig().getBoolean("claims.defaultClaimSettings.beaconEffect");
+
+
+
+        if (!())
+    }
 
     // TNTPrimeEvent
     @EventHandler

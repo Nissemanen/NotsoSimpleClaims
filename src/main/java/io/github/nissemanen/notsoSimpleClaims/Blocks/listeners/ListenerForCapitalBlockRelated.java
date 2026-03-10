@@ -7,11 +7,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -29,19 +26,6 @@ public class ListenerForCapitalBlockRelated implements Listener {
     public ListenerForCapitalBlockRelated(Plugin plugin, ClaimManager claimManager) {
         this.plugin = plugin;
         this.claimManager = claimManager;
-    }
-
-    public Map<Block, UUID> getCapitalBlocks() {
-        return capitalBlocks;
-    }
-
-    @EventHandler
-    final void onRightClick(PlayerInteractEvent e) {
-        if (e.getAction() != Action.RIGHT_CLICK_AIR) return;
-
-        ItemStack currentItem = e.getPlayer().getInventory().getItemInMainHand();
-
-        e.getPlayer().sendMessage("current item hold is: "+currentItem);
     }
 
     @EventHandler
@@ -62,11 +46,11 @@ public class ListenerForCapitalBlockRelated implements Listener {
     @EventHandler
     final void onBlockDropItem(BlockDropItemEvent e) {
         /*
-        anticipated setting:
+        setting:
          - dropCapitalBlockOnBreak: bool
          - capitalBlockAutoPickupOnDrop: bool
          */
-        boolean capitalBlockAutoPickupOnDrop = false; // todo - actually make this use the config settings
+        boolean capitalBlockAutoPickupOnDrop = plugin.getConfig().getBoolean("capitalBlockAutoPickupOnDrop"); // todo - actually make this use the config settings
 
         Block block = e.getBlock();
 
