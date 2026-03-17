@@ -12,14 +12,17 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
 public class EntityListenerClaims implements Listener {
     private final ClaimManager claimManager;
+    private final JavaPlugin plugin;
 
-    public EntityListenerClaims(ClaimManager claimManager) {
+    public EntityListenerClaims(ClaimManager claimManager, JavaPlugin plugin) {
         this.claimManager = claimManager;
+        this.plugin = plugin;
     }
 
     private boolean isPlayerNotAllowedToBuild(Player player, Chunk chunk) {
@@ -33,9 +36,15 @@ public class EntityListenerClaims implements Listener {
         }
     }
 
-    // EntityExplodeEvent (no greifing mobs)
     @EventHandler
     final void entityExplodeEvent(EntityExplodeEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            entityExplode: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.entityExplode")) return;
+
         if (!(e.getEntity() instanceof Creeper creeper)) return;
 
         Chunk chunk = e.getEntity().getChunk();

@@ -6,18 +6,24 @@ import io.papermc.paper.event.player.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import javax.management.monitor.Monitor;
+import java.util.Objects;
 
 public class PlayerListenerClaims implements Listener {
     private final ClaimManager claimManager;
+    private final JavaPlugin plugin;
 
-    public PlayerListenerClaims(ClaimManager claimManager) {
+    public PlayerListenerClaims(ClaimManager claimManager, JavaPlugin plugin) {
         this.claimManager = claimManager;
+        this.plugin = plugin;
     }
 
     private boolean isPlayerNotAllowedToBuild(Player player, Chunk chunk) {
@@ -33,63 +39,119 @@ public class PlayerListenerClaims implements Listener {
 
     // PlayerChangeBeaconEvent *
 
-    // PlayerFlowerpotManipulateEvent
     @EventHandler
     final void playerFlowerpotManipulateEvent(PlayerFlowerPotManipulateEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getFlowerpot().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            flowerpotManipulate: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.flowerpotManipulate")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getFlowerpot().getChunk(), e.getPlayer(), e);
     }
 
-    // PlayerInsertLecternBookEvent
     @EventHandler
     final void playerInsertLecternBookEvent(PlayerInsertLecternBookEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getLectern().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            insertLecternBook: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.insertLecternBook")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getLectern().getChunk(), e.getPlayer(), e);
     }
 
-    // PlayerItemFrameChangeEvent
     @EventHandler
     final void playerItemFrameChangeEvent(PlayerItemFrameChangeEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getItemFrame().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            itemFrameChange: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.itemFrameChange")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getItemFrame().getChunk(), e.getPlayer(), e);
     }
 
-    // PlayerLecternPageChangeEvent
     @EventHandler
     final void playerLecternPageChangeEvent(PlayerLecternPageChangeEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getLectern().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            lecternPageChange: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.lecternPageChange")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getLectern().getChunk(), e.getPlayer(), e);
     }
 
-    // PlayerNameEntityEvent
     @EventHandler
     final void playerNameEntityEvent(PlayerNameEntityEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getEntity().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            nameEntity: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.nameEntity")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getEntity().getChunk(), e.getPlayer(), e);
     }
 
-    // PlayerOpenSignEvent
     @EventHandler
     final void playerOpenSignEvent(PlayerNameEntityEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getEntity().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            openSignEvent: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.openSignEvent")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getEntity().getChunk(), e.getPlayer(), e);
     }
 
-    // PlayerTradeEvent *
+    @EventHandler
+    final void playerTradeEvent(PlayerTradeEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            trade: bool (false)
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.trade")) return;
+
+        handleSimpleCancel(e.getMerchant().getChunk(), e.getPlayer(), e);
+    }
 
     // PrePlayerAttackEntityEvent *
+    @EventHandler
+    final void prePlayerAttackEntityEvent(PrePlayerAttackEntityEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            attackHarmfulEntities: bool
+            attackFriendlyEntities: bool
+            attackTamedEntities: bool
+            attackPlayers: bool
+         */
+        if (!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackHarmfullEntities") && e.getAttacked() instanceof Monster) {
+            handleSimpleCancel(e.getAttacked().getChunk(), e.getPlayer(), e);
+            return;
+        }
+
+        if(!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackFriendlyEntities") && (
+                e.getAttacked() instanceof Animals ||
+                e.getAttacked() instanceof Tameable ||
+                e.getAttacked() instanceof NPC ||
+                e.getAttacked() instanceof Villager)) {
+            handleSimpleCancel(e.getAttacked().getChunk(), e.getPlayer(), e);
+            return;
+        }
+
+        if(!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackTamedEntities") && e.getAttacked() instanceof Tameable) {
+            e.setCancelled(Objects.equals(((Tameable) e.getAttacked()).getOwnerUniqueId(), claimManager.getOwnerOf(e.getAttacked().getChunk())));
+        }
+    }
 
     // PlayerArmorStandManipulateEvent
     @EventHandler

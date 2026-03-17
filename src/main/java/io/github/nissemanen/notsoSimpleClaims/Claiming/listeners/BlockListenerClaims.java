@@ -3,7 +3,6 @@ package io.github.nissemanen.notsoSimpleClaims.Claiming.listeners;
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import io.github.nissemanen.notsoSimpleClaims.Claiming.ClaimManager;
 import io.papermc.paper.event.block.VaultChangeStateEvent;
-import io.papermc.paper.event.entity.EntityCompostItemEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Chunk;
@@ -14,7 +13,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
 
 public class BlockListenerClaims implements Listener {
     private final ClaimManager claimManager;
@@ -51,15 +49,16 @@ public class BlockListenerClaims implements Listener {
 
         handleSimpleCancel(chunk, player, e);
 
-        if (e.isCancelled()) return;
-
-        e.setEffect(
-                e.getEffect().withAmplifier(
-                        (int) Math.round(
-                                e.getEffect().getAmplifier() * Math.max(Math.abs(plugin.getConfig().getDouble("claims.defaultSettings.beaconEffectMultiplier")), 1.0)
-                        )
-                )
-        );
+//      currently it doesn't really work
+//        if (e.isCancelled()) return;
+//
+//        e.setEffect(
+//                e.getEffect().withAmplifier(
+//                        (int) Math.round(
+//                                e.getEffect().getAmplifier() * Math.max(Math.abs(plugin.getConfig().getDouble("claims.defaultSettings.beaconEffectMultiplier")), 1.0)
+//                        )
+//                )
+//        );
     }
 
     @EventHandler
@@ -67,9 +66,9 @@ public class BlockListenerClaims implements Listener {
         /*
         claims:
           defaultClaimSettings:
-            tntPriming: bool
+            tntPrime: bool
          */
-        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.tntPriming") || !(e.getPrimingEntity() instanceof Player player)) return;
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.tntPrime") || !(e.getPrimingEntity() instanceof Player player)) return;
 
         Chunk chunk = e.getBlock().getChunk();
 
@@ -81,9 +80,9 @@ public class BlockListenerClaims implements Listener {
         /*
         claims:
           defaultClaimSettings:
-            changeVaultState: bool
+            vaultChangeState: bool
          */
-        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.changeVaultState")) return;
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.vaultChangeState")) return;
 
         handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
@@ -93,9 +92,9 @@ public class BlockListenerClaims implements Listener {
         /*
         claims:
           defaultClaimSettings:
-            breakBlocks: bool
+            blockBreak: bool
          */
-        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.breakBlocks")) return;
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.blockBreak")) return;
 
         handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
@@ -105,9 +104,9 @@ public class BlockListenerClaims implements Listener {
         /*
         claims:
           defaultClaimSettings:
-            buildBlocks: bool
+            blockCanBuild: bool
          */
-        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.buildBlocks")) return;
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.blockCanBuild")) return;
 
         if (playerHasNoPerms(e.getPlayer(), e.getBlock().getChunk()))
             e.setBuildable(false);
@@ -115,31 +114,49 @@ public class BlockListenerClaims implements Listener {
 
     @EventHandler
     final void blockFertilizeEvent(BlockFertilizeEvent e) {
-        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.fertilizeBlocks")) return;
+        /*
+        claims:
+          defaultClaimSettings:
+            blockFertilize: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.blockFertilize")) return;
 
         handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
-    // BlockIgniteEvent
     @EventHandler
     final void blockIgniteEvent(BlockIgniteEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getBlock().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            blockIgnite: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.blockIgnite")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
-    // BlockPlaceEvent
     @EventHandler
     final void blockPlaceEvent(BlockPlaceEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getBlock().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            blockPlace: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.blockPlace")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
-    // NotePlayEvent *
+    @EventHandler
+    final void signChangeEvent(SignChangeEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            signChange: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings")) return;
 
-    // SignChangeEvent ?
-
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
+    }
 }

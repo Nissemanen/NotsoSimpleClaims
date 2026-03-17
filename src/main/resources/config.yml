@@ -9,9 +9,22 @@ claims:
     # and false means they are not allowed
 
     beaconEffect: true # if non group members should get the beacon effect of a beacon in claims
-    #beaconEffectMultiplier: 1.0 # This doesn't work rn, I added it incase I found a way to make this work, but it doesn't :(
-    tntPriming: false
-    changeVaultState: true # with the new trails thing, the lil block that takes keys won't change how it looks
+    #beaconEffectMultiplier: 1.0 # This doesn't work rn, I added it in case I found a way to make this work, but it doesn't :(
+    tntPrime: false
+    vaultChangeState: true # with the new trails thing, the lil block that takes keys won't change how it looks
+    blockBreak: false
+    blockCanBuild: false # not the same as blockPlace, this one cancels before the block is even placed
+    blockFertilize: false
+    blockIgnite: false
+    blockPlace: false
+    entityExplode: false # if creepers that aren't close to a group member explodes, blocks get destroyed
+    flowerpotManipulate: false
+    insertLecternBook: false
+    itemFrameChange: false
+    lecternPageChange: false
+    nameEntity: false
+    openSignEvent: false
+    trade: true
 
 capitalBlockSettings:
   dropCapitalBlockOnBreak: true
