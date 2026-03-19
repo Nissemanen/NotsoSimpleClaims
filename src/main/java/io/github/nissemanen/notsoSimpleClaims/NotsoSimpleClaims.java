@@ -37,7 +37,7 @@ public final class NotsoSimpleClaims extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(playerListenerCapitalBlock, this);
         getServer().getPluginManager().registerEvents(new BlockListenerClaims(claimManager, this), this);
-        getServer().getPluginManager().registerEvents(new EntityListenerClaims(claimManager), this);
+        getServer().getPluginManager().registerEvents(new EntityListenerClaims(claimManager, this), this);
         getServer().getPluginManager().registerEvents(new PlayerListenerClaims(claimManager, this), this);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands ->

@@ -12,7 +12,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jspecify.annotations.NonNull;
 
 import javax.management.monitor.Monitor;
 import java.util.Objects;
@@ -32,6 +34,13 @@ public class PlayerListenerClaims implements Listener {
 
     private <T extends Event & Cancellable> void handleSimpleCancel(Chunk chunk, Player player, T e) {
         if (isPlayerNotAllowedToBuild(player, chunk)) {
+            e.setCancelled(true);
+            player.sendActionBar(Component.text("fuck you").color(NamedTextColor.RED));
+        }
+    }
+
+    private <T extends Event & Cancellable> void handleHardCancel(Chunk chunk, Player player, T e) {
+        if (claimManager.isChunkClaimed(chunk)) {
             e.setCancelled(true);
             player.sendActionBar(Component.text("fuck you").color(NamedTextColor.RED));
         }
@@ -134,32 +143,46 @@ public class PlayerListenerClaims implements Listener {
             attackTamedEntities: bool
             attackPlayers: bool
          */
-        if (!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackHarmfullEntities") && e.getAttacked() instanceof Monster) {
-            handleSimpleCancel(e.getAttacked().getChunk(), e.getPlayer(), e);
+        Entity attacked = e.getAttacked();
+
+        if (!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackHarmfullEntities") && attacked instanceof Monster) {
+            handleSimpleCancel(attacked.getChunk(), e.getPlayer(), e);
             return;
         }
 
         if(!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackFriendlyEntities") && (
-                e.getAttacked() instanceof Animals ||
-                e.getAttacked() instanceof Tameable ||
-                e.getAttacked() instanceof NPC ||
-                e.getAttacked() instanceof Villager)) {
-            handleSimpleCancel(e.getAttacked().getChunk(), e.getPlayer(), e);
+                attacked instanceof Animals ||
+                attacked instanceof Tameable ||
+                attacked instanceof NPC ||
+                attacked instanceof Villager)) {
+            handleSimpleCancel(attacked.getChunk(), e.getPlayer(), e);
             return;
         }
 
-        if(!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackTamedEntities") && e.getAttacked() instanceof Tameable) {
-            e.setCancelled(Objects.equals(((Tameable) e.getAttacked()).getOwnerUniqueId(), claimManager.getOwnerOf(e.getAttacked().getChunk())));
+        if(!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackTamedEntities") && attacked instanceof Tameable) {
+            e.setCancelled(
+                    Objects.equals(
+                            ((Tameable) attacked).getOwnerUniqueId(),
+                            claimManager.getOwnerOf(e.getAttacked().getChunk()))
+            );
+            return;
         }
+
+        if(!plugin.getConfig().getBoolean("claims.defaultClaimSettings.attackPlayers") && attacked instanceof Player)
+            handleHardCancel(attacked.getChunk(), e.getPlayer(), e);
     }
 
     // PlayerArmorStandManipulateEvent
     @EventHandler
     final void playerArmorStandManipulateEvent(PlayerArmorStandManipulateEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getRightClicked().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            armorStandManipulate: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.armorStandManipuilate")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getRightClicked().getChunk(), e.getPlayer(), e);
     }
 
     // PlayerBucketEmptyEvent ?
@@ -167,10 +190,14 @@ public class PlayerListenerClaims implements Listener {
     // PlayerBucketEntityEvent
     @EventHandler
     final void playerBucketEntityEvent(PlayerBucketEntityEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getPlayer().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            bucketEntity: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defauiltClaimSettings.bucketEntity")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getEntity().getChunk(), e.getPlayer(), e);
     }
 
     // PlayerBucketEvent ?
@@ -186,50 +213,100 @@ public class PlayerListenerClaims implements Listener {
     // PlayerHarvestBlockEvent *
 
     // PlayerInteractAtEntityEvent *
+    @EventHandler
+    final void playerInteractAtEntityEvent(PlayerInteractAtEntityEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            interactWithEntity: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.interactWithEntity")) return;
+
+        handleSimpleCancel(e.getRightClicked().getChunk(), e.getPlayer(), e);
+    }
 
     // PlayerInteractEvent
     @EventHandler
     final void playerInteractEvent(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getClickedBlock().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            interact: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.interact")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getInteractionPoint().getChunk(), e.getPlayer(), e);
     }
 
     // PlayerPortalEvent
     @EventHandler
     final void playerPortalEvent(PlayerPortalEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getTo().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            useNetherPortal: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.useNetherPortal") && e.getCause() != PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getFrom().getChunk(), e.getPlayer(), e);
+        handleSimpleCancel(e.getTo().getChunk(), e.getPlayer(), e);
+    }
+
+    @EventHandler
+    final void portalCreateEvent(PortalCreateEvent e) {
+        /*
+        claims:
+          defaultClaimSettings:
+            createNetherPortal: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.createNetherPortal") && e.getReason() != PortalCreateEvent.CreateReason.NETHER_PAIR && !(e.getEntity() instanceof Player)) return;
+
+        Player player = (Player) e.getEntity();
+
+        e.setCancelled(
+                e.getBlocks().stream().anyMatch(
+                        blockState -> claimManager.isChunkClaimedBy(player, blockState.getChunk())
+                )
+        );
     }
 
     // PlayerShearEntityEvent
     @EventHandler
     final void playerShearEntityEvent(PlayerShearEntityEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getEntity().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            shearEntity: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.shearEntity")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getEntity().getChunk(), e.getPlayer(), e);
     }
 
     // PlayerShearBlockEvent
     @EventHandler
     final void playerShearBlockEvent(PlayerShearBlockEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getBlock().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            shearBlock: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.shearBlock")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getBlock().getChunk(), e.getPlayer(), e);
     }
 
     // PlayerTakeLecternBookEvent
     @EventHandler
     final void playerTakeLecternBookEvent(PlayerTakeLecternBookEvent e) {
-        Player player = e.getPlayer();
-        Chunk chunk = e.getLectern().getChunk();
+        /*
+        claims:
+          defaultClaimSettings:
+            takeLecternBook: bool
+         */
+        if (plugin.getConfig().getBoolean("claims.defaultClaimSettings.takeLecternBook")) return;
 
-        handleSimpleCancel(chunk, player, e);
+        handleSimpleCancel(e.getLectern().getChunk(), e.getPlayer(), e);
     }
 
     // PlayerSetSpawnEvent *

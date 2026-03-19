@@ -25,7 +25,19 @@ claims:
     nameEntity: false
     openSignEvent: false
     trade: true
+    attackHarmfullyEntities: false # that is any mob with the "monster" code
+    attackFriendlyEntities: false # that is any mob with any of the "animal", "tameable", "npc", or "villager" code
+    attackTamedEntities: false # that is any mob with the "tamable" code, and that is tamed by the owner of the current chunk its in
+    attackPlayers: true # this accounts on all players in the claimed chunk, including any group member
+    armorStandManipulate: false
+    bucketEntity: false
+    interactWithEntity: false
+    interact: false # idek what the difference is, prolly that interact also includes blocks n stuff
+    useNetherPortal: true
+    createNetherPortal: false
+
 
 capitalBlockSettings:
+  largeClaimDisplay: false # this is if the claim thing should also stretch down to the players inventory or just be in the "chest"
   dropCapitalBlockOnBreak: true
   capitalBlockAutoPickupOnDrop: false
